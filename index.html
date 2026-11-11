@@ -3,102 +3,88 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#111a2c">
-  <title>《紙妻》AI 劇本殺｜無 Token 版</title>
-  <link rel="stylesheet" href="styles.css">
-
-  <style>
-    .connection-status{display:flex;align-items:center;gap:.65rem;min-height:2.75rem;padding:.75rem 1rem;border:1px solid var(--line,rgba(255,255,255,.15));border-radius:12px;font-size:.92rem;line-height:1.45;background:rgba(255,255,255,.04)}
-    .connection-dot{width:.65rem;height:.65rem;flex:0 0 .65rem;border-radius:50%;background:#d6a64b;box-shadow:0 0 12px currentColor}
-    .connection-status.checking .connection-dot{background:#d6a64b}
-    .connection-status.ready{border-color:rgba(92,190,133,.5);color:#bcebd0;background:rgba(42,125,79,.12)}
-    .connection-status.ready .connection-dot{background:#56c58a}
-    .connection-status.error{border-color:rgba(225,95,95,.5);color:#ffc6c6;background:rgba(130,35,35,.12)}
-    .connection-status.error .connection-dot{background:#ee6868}
-  </style>
-
+  <meta name="theme-color" content="#100e0c">
+  <meta name="description" content="《紙妻》民國懸疑互動劇本殺：序章、人物介紹與固定分支公開問答。">
+  <title>《紙妻》｜民國懸疑互動劇本殺</title>
+  <link rel="stylesheet" href="styles.css?v=0.2.0">
 </head>
 <body>
+  <div class="grain"></div>
   <div class="app-shell">
     <header class="topbar">
-      <div class="brand"><span class="brand-mark">紙</span><div><strong>AI 劇本殺</strong><small>《紙妻》・無 Token 版本</small></div></div>
-      <div class="chapter-track"><span class="active">第一幕 <small>角色與怪事</small></span><i></i><span>第二幕 <small>後續更新</small></span><i></i><span>第三幕 <small>後續更新</small></span></div>
+      <a class="brand" href="#top" aria-label="紙妻首頁"><span class="brand-seal">紙</span><span><strong>紙妻</strong><small>THE PAPER BRIDE · CASE 001</small></span></a>
+      <div class="top-status"><span class="status-dot"></span><span id="connectionStatusText">正在連接陳宅檔案室…</span></div>
+      <div class="chapter-track"><span class="track-active">序章</span><i></i><span>第一幕</span><i></i><span class="track-muted">後續調查</span></div>
     </header>
 
-    <main>
-      <section id="setupView" class="setup-view">
-        <div class="intro-panel">
-          <div class="eyebrow">MURDER MYSTERY · ACT 01</div>
-          <h1>霧鎖陳宅</h1>
-          <p>民國初年，清河縣陳宅被濃霧籠罩。婚禮前夕，宅中怪事頻傳，七位各懷心事的人聚集在這場詭異的儀式裡。</p>
-          <div class="intro-pills"><span>7 位可選角色</span><span>1 位玩家・6 位固定 AI</span><span>免 Token 問答</span></div>
-        </div>
-        <section class="selection-panel">
-          <div class="section-heading"><div><span class="eyebrow">CHOOSE YOUR ROLE</span><h2>選擇你要扮演的角色</h2></div><span class="muted">每局選擇 1 位，其餘由電腦扮演</span></div>
-          <div id="characterGrid" class="character-grid"><div class="loading">正在載入角色…</div></div>
-          <div class="setup-footer">
-            <div id="connectionStatus" class="connection-status checking" role="status" aria-live="polite">
-              <span class="connection-dot" aria-hidden="true"></span>
-              <span id="connectionStatusText">正在連接遊戲伺服器…</span>
-            </div>
-            <button id="startBtn" class="gold-btn" disabled>檢查後端連線中…</button>
+    <main id="top">
+      <section id="setupView" class="view setup-view">
+        <div class="hero-panel">
+          <div class="hero-copy">
+            <div class="eyebrow">A STORY BUILT ON SECRETS</div>
+            <h1>每個人都有秘密。<br><em>但只有真相不會說謊。</em></h1>
+            <p>民國二十年代末，清河陳宅被濃霧籠罩。婚禮前夕，七位各懷心事的人被聚在同一場儀式之中。有人追尋舊案，有人隱瞞身分，也有人正等待一個永遠不該被揭開的秘密。</p>
+            <div class="hero-tags"><span>民國懸疑</span><span>家族祕史</span><span>固定分支問答</span><span>一位玩家・六位 AI 角色</span></div>
           </div>
-          <p class="micro-note">遊戲會自動連接官方遊戲伺服器，不需要手動輸入網址。本版本開放第一幕劇本閱讀與三層固定問答；第二幕、搜證、線索卡與最終投票將於後續版本逐步加入。</p>
+          <div class="hero-seal">CASE<br><b>001</b><small>清河陳宅</small></div>
+        </div>
+        <section class="selection-panel panel">
+          <div class="section-title"><div><div class="eyebrow">YOUR SECRET IDENTITY</div><h2>決定你的角色</h2></div><p>七位涉案者之中，選擇一人作為你的身分。其餘六位將依照各自掌握的劇本與立場參與公開問答。</p></div>
+          <div id="characterGrid" class="character-grid"><div class="loading">正在讀取人物名冊…</div></div>
+          <div class="setup-bottom"><div id="connectionStatus" class="connection-pill"><span class="status-led"></span><span>正在確認後端連線…</span></div><button id="startBtn" class="gold-btn" disabled>選擇角色，進入案件 →</button></div>
+          <p class="fine-print">本版本不呼叫生成式 AI API、不消耗 Token。每位角色的私人劇本與固定問答由 Cloudflare 後端管理；公開網站不包含完整角色秘密。</p>
         </section>
       </section>
 
-      <section id="gameView" class="game-view hidden">
-        <div class="game-toolbar">
-          <div><span class="eyebrow">ACT 01 · THE CHEN MANOR</span><h2 id="stageTitle">第一幕｜角色劇本閱讀與問答</h2></div>
-          <div class="toolbar-actions"><span class="player-chip" id="playerChip"></span><button class="outline-btn" id="scriptBtn">查看我的劇本</button><button class="outline-btn" id="endActBtn">結束第一幕</button></div>
-        </div>
+      <section id="prologueView" class="view hidden">
+        <div class="story-top"><div><div class="eyebrow">CASE 001 · PROLOGUE</div><h2>案件序章</h2></div><div id="prologueCounter" class="story-counter">01 / 04</div></div>
+        <article class="story-card">
+          <div class="story-backdrop"></div>
+          <div class="story-overlay"></div>
+          <div class="story-content"><div id="prologueLocation" class="story-location">江南清河縣・長鹽山腳</div><div id="prologueChapter" class="story-chapter">壹・霧起清河</div><p id="prologueText" class="story-text"></p>
+            <div class="story-footer"><span>旁白　·　NARRATOR</span><button id="prologueNext" class="gold-btn">繼續 →</button></div>
+          </div>
+        </article>
+      </section>
 
+      <section id="castView" class="view hidden">
+        <div class="story-top"><div><div class="eyebrow">THE PEOPLE IN THIS ROOM</div><h2>在場人物</h2><p>先認識每一位與陳宅舊事有所牽連的人。</p></div><div id="castCounter" class="story-counter">01 / 07</div></div>
+        <article class="cast-card panel">
+          <div class="cast-portrait-wrap"><div id="castPortrait" class="cast-portrait"></div><div class="portrait-caption" id="castPortraitCaption">人物剪影</div></div>
+          <div class="cast-details"><div class="eyebrow">CHARACTER INTRODUCTION</div><h2 id="castName">陳聿明</h2><div id="castOccupation" class="cast-occupation">陳宅主人</div><p id="castAction" class="cast-action"></p><blockquote id="castIntro" class="cast-intro"></blockquote><div class="cast-footer"><span id="castAge">40 歲（表面）</span><button id="castNext" class="gold-btn">下一位角色 →</button></div></div>
+        </article>
+      </section>
+
+      <section id="gameView" class="view hidden">
+        <div class="game-heading"><div><div class="eyebrow">ACT 01 · THE CHEN MANOR</div><h2 id="stageTitle">第一幕｜公開問答</h2></div><div class="player-chip" id="playerChip">玩家：—</div></div>
         <div class="game-layout">
-          <section class="visual-stage" aria-label="遊戲場景">
-            <div class="scene-caption"><span>清河縣・陳宅</span><span>十一月初七　薄霧</span></div>
-            <div class="stage-cast" id="stageCast">
-              <div class="speaker-portrait" id="speakerPortrait"></div>
-              <div class="speaker-placeholder"><span id="speakerRole">系統</span><small id="speakerMood">第一幕開場</small></div>
-            </div>
-            <div class="dialogue-panel">
-              <div class="nameplate" id="dialogueName">系統</div>
-              <div class="dialogue-text" id="dialogueText">霧氣籠罩著陳宅，婚禮前夕，所有人都感到不安。</div>
-              <div class="dialogue-footer"><span>LOG ▴</span><span id="dialogueStep">第一幕・開場</span></div>
-            </div>
+          <section class="visual-stage">
+            <div class="scene-label"><span>清河縣・陳宅</span><span>十一月初七　薄霧</span></div>
+            <div class="stage-cast"><div id="speakerPortrait" class="speaker-portrait"></div><div class="speaker-caption"><span id="speakerRole">旁白</span><small id="speakerMood">第一幕・公開問答</small></div></div>
+            <div class="dialogue-panel"><div id="dialogueName" class="dialogue-name">旁白</div><p id="dialogueText" class="dialogue-text">陳宅裡，沒有人願意先開口。</p><div class="dialogue-foot"><span>LOG ▴</span><span id="dialogueStep">第一幕・開始</span></div></div>
           </section>
-
           <aside class="side-panel">
-            <div class="side-card"><div class="side-title">本局資訊</div><div class="side-row"><span>你的角色</span><strong id="sideRole">—</strong></div><div class="side-row"><span>電腦角色</span><strong>6 位</strong></div><div class="side-row"><span>遊戲階段</span><strong id="sideStage">劇本閱讀</strong></div></div>
-            <div class="side-card"><div class="side-title">你的第一幕任務</div><ul id="taskList" class="task-list"></ul></div>
-            <div class="side-card conversation-card"><div class="side-title">公開對話紀錄 <button id="toggleLogBtn" class="text-btn">收合</button></div><div id="publicLog" class="public-log"></div></div>
+            <section class="side-card"><div class="side-title">本局資訊</div><div class="side-row"><span>你的角色</span><b id="sideRole">—</b></div><div class="side-row"><span>其他角色</span><b>6 位</b></div><div class="side-row"><span>目前階段</span><b id="sideStage">序章</b></div><button id="scriptBtn" class="side-action">查看我的第一幕劇本 ↗</button></section>
+            <section class="side-card"><div class="side-title">你的第一幕任務</div><ul id="taskList" class="task-list"></ul></section>
+            <section class="side-card log-card"><div class="side-title">公開紀錄 <button id="toggleLogBtn" class="text-btn">收合</button></div><div id="publicLog" class="public-log"></div></section>
           </aside>
         </div>
-
-        <section id="discussionPanel" class="discussion-panel hidden">
-          <div class="section-heading"><div><span class="eyebrow">FIXED BRANCHING Q&A</span><h3>第一幕・自由問答</h3><p class="muted">每段對話最多三層：起始問題、第一次追問、第二次追問。</p></div><div class="mode-switch"><button class="mode-btn active" data-mode="player_to_ai">我詢問 AI</button><button class="mode-btn" data-mode="ai_to_player">AI 詢問我</button></div></div>
-          <div class="question-controls">
-            <label>對話角色<select id="targetRole"></select></label>
-            <button id="beginQuestionBtn" class="outline-btn">載入問題方向</button>
-            <button id="askRandomBtn" class="outline-btn hidden">讓角色向我提問</button>
-          </div>
-          <div id="questionArea" class="question-area"><div class="empty-state">選擇對話方向與角色，即可開始第一幕問答。</div></div>
+        <section id="discussionPanel" class="discussion-panel panel hidden">
+          <div class="section-title"><div><div class="eyebrow">PUBLIC CROSS-EXAMINATION</div><h2 id="discussionTitle">公開交叉詢問</h2></div><div id="phaseBadge" class="phase-badge">階段 1 / 3</div></div>
+          <p id="discussionIntro" class="discussion-intro"></p>
+          <div id="questionArea" class="question-area"><div class="loading">正在準備問答…</div></div>
         </section>
-
-        <section id="actComplete" class="complete-panel hidden">
-          <div class="complete-icon">✓</div><span class="eyebrow">ACT 01 COMPLETE</span><h2>第一幕問答已完成</h2><p>你已完成第一幕劇本閱讀與角色問答。下一階段涉及案發夜、搜證與新線索，將在下一個版本加入。</p><button id="backSetupBtn" class="outline-btn">返回角色選擇</button>
-        </section>
+        <section id="actComplete" class="complete-panel panel hidden"><div class="complete-seal">✓</div><div class="eyebrow">ACT 01 COMPLETE</div><h2>第一幕・問答結束</h2><p>序章、角色介紹、玩家詢問、AI 角色質詢，以及三組角色間的公開交叉詢問均已完成。陳宅的疑雲並未散去，真正的調查將在下一幕展開。</p><button id="backSetupBtn" class="outline-btn">返回角色選擇</button></section>
       </section>
     </main>
-    <footer class="footer"><span>《紙妻》AI 劇本殺 · Tokenless v0.1.2</span><span>角色私有資料由 Worker + D1 管理</span></footer>
+    <footer class="footer"><span>《紙妻》民國懸疑互動劇本 · Tokenless v0.2.0</span><span>角色私有劇本由 Cloudflare Worker + D1 管理</span></footer>
   </div>
 
   <dialog id="scriptDialog" class="modal">
-    <div class="modal-head"><div><span class="eyebrow">PRIVATE CHARACTER SCRIPT</span><h2 id="scriptTitle">我的第一幕劇本</h2></div><button class="close-btn" id="closeScript">✕</button></div>
+    <div class="modal-head"><div><div class="eyebrow">YOUR PRIVATE CHARACTER FILE</div><h2 id="scriptTitle">我的第一幕劇本</h2></div><button class="close-btn" id="closeScript" aria-label="關閉">×</button></div>
     <div id="scriptContent" class="script-content"></div>
-    <div class="modal-actions"><button class="gold-btn" id="scriptDone">我已閱讀，開始討論</button></div>
+    <div class="modal-actions"><button class="gold-btn" id="scriptDone">我已閱讀，開始公開討論 →</button></div>
   </dialog>
-
-
-  <script src="app.js?v=0.1.2"></script>
+  <script src="app.js?v=0.2.0"></script>
 </body>
 </html>
