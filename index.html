@@ -6,13 +6,23 @@
   <meta name="theme-color" content="#111a2c">
   <title>《紙妻》AI 劇本殺｜無 Token 版</title>
   <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .connection-status{display:flex;align-items:center;gap:.65rem;min-height:2.75rem;padding:.75rem 1rem;border:1px solid var(--line,rgba(255,255,255,.15));border-radius:12px;font-size:.92rem;line-height:1.45;background:rgba(255,255,255,.04)}
+    .connection-dot{width:.65rem;height:.65rem;flex:0 0 .65rem;border-radius:50%;background:#d6a64b;box-shadow:0 0 12px currentColor}
+    .connection-status.checking .connection-dot{background:#d6a64b}
+    .connection-status.ready{border-color:rgba(92,190,133,.5);color:#bcebd0;background:rgba(42,125,79,.12)}
+    .connection-status.ready .connection-dot{background:#56c58a}
+    .connection-status.error{border-color:rgba(225,95,95,.5);color:#ffc6c6;background:rgba(130,35,35,.12)}
+    .connection-status.error .connection-dot{background:#ee6868}
+  </style>
+
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
       <div class="brand"><span class="brand-mark">紙</span><div><strong>AI 劇本殺</strong><small>《紙妻》・無 Token 版本</small></div></div>
       <div class="chapter-track"><span class="active">第一幕 <small>角色與怪事</small></span><i></i><span>第二幕 <small>後續更新</small></span><i></i><span>第三幕 <small>後續更新</small></span></div>
-      <button class="ghost-btn" id="settingsBtn" type="button">設定</button>
     </header>
 
     <main>
@@ -27,11 +37,13 @@
           <div class="section-heading"><div><span class="eyebrow">CHOOSE YOUR ROLE</span><h2>選擇你要扮演的角色</h2></div><span class="muted">每局選擇 1 位，其餘由電腦扮演</span></div>
           <div id="characterGrid" class="character-grid"><div class="loading">正在載入角色…</div></div>
           <div class="setup-footer">
-            <label class="api-label" for="apiBase">Worker API 網址 <small>完成 Cloudflare 後端部署後，請貼上 Worker 網址；尚未部署時可先瀏覽角色畫面</small></label>
-            <input id="apiBase" type="url" placeholder="https://你的-worker-名稱.你的帳號.workers.dev">
-            <button id="startBtn" class="gold-btn" disabled>進入陳宅　▶</button>
+            <div id="connectionStatus" class="connection-status checking" role="status" aria-live="polite">
+              <span class="connection-dot" aria-hidden="true"></span>
+              <span id="connectionStatusText">正在連接遊戲伺服器…</span>
+            </div>
+            <button id="startBtn" class="gold-btn" disabled>檢查後端連線中…</button>
           </div>
-          <p class="micro-note">前端畫面可先直接瀏覽；開始遊戲前，必須先完成 Cloudflare Worker 與 D1 後端部署，並填入 Worker 網址。本版本只開放第一幕劇本閱讀與三層固定問答。第二幕、搜證、線索卡與最終投票會在後續版本逐步加入。</p>
+          <p class="micro-note">遊戲會自動連接官方遊戲伺服器，不需要手動輸入網址。本版本開放第一幕劇本閱讀與三層固定問答；第二幕、搜證、線索卡與最終投票將於後續版本逐步加入。</p>
         </section>
       </section>
 
@@ -77,7 +89,7 @@
         </section>
       </section>
     </main>
-    <footer class="footer"><span>《紙妻》AI 劇本殺 · Tokenless v0.1.1</span><span>角色私有資料由 Worker + D1 管理</span></footer>
+    <footer class="footer"><span>《紙妻》AI 劇本殺 · Tokenless v0.1.2</span><span>角色私有資料由 Worker + D1 管理</span></footer>
   </div>
 
   <dialog id="scriptDialog" class="modal">
@@ -86,13 +98,7 @@
     <div class="modal-actions"><button class="gold-btn" id="scriptDone">我已閱讀，開始討論</button></div>
   </dialog>
 
-  <dialog id="settingsDialog" class="modal settings-modal">
-    <div class="modal-head"><div><span class="eyebrow">CONNECTION</span><h2>連線設定</h2></div><button class="close-btn" id="closeSettings">✕</button></div>
-    <label class="api-label" for="apiBaseSettings">Worker API 網址</label><input id="apiBaseSettings" type="url" placeholder="https://你的-worker-名稱.你的帳號.workers.dev">
-    <p class="micro-note">正式部署後，請填入 Cloudflare Worker 網址。API 網址只保存在目前瀏覽器，不會寫進 GitHub。</p>
-    <div class="modal-actions"><button class="gold-btn" id="saveSettings">儲存設定</button></div>
-  </dialog>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=0.1.2"></script>
 </body>
 </html>
