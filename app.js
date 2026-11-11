@@ -1,8 +1,9 @@
-const DEFAULT_API = ''; // 部署到 GitHub Pages 後，請填入 Cloudflare Worker 網址
-const SAVED_API = localStorage.getItem('paperwife_api_base') || '';
-// 清除舊版儲存的 localhost，避免公開網站誤連使用者自己的電腦。
-if (/^https?:\/\/(localhost|127\.0\.0\.1)(:|$)/i.test(SAVED_API)) localStorage.removeItem('paperwife_api_base');
-let API_BASE = (/^https?:\/\/(localhost|127\.0\.0\.1)(:|$)/i.test(SAVED_API) ? DEFAULT_API : SAVED_API).trim().replace(/\/$/, '');
+// 正式部署用：所有玩家開啟 GitHub Pages 時都會自動連到這個 Worker。
+// Worker 網址不是密碼，可以公開放在前端；角色私有劇本仍只存放於 Cloudflare D1。
+const API_BASE = 'https://paperwife-tokenless-act1.paperwife-game.workers.dev';
+// 清除舊版本讓玩家手動輸入 API 時留下的本機設定，避免覆蓋正式網址。
+localStorage.removeItem('paperwife_api_base');
+let backendReady = false;
 let characters = [];
 let session = null;
 let player = null;
@@ -15,29 +16,72 @@ let latestPlayerQuestion = null;
 const $ = (id) => document.getElementById(id);
 const esc = (s='') => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function api(path, options={}) {
-  if (!API_BASE) throw new Error('尚未設定 Cloudflare Worker 網址。請先完成「02-後台部署專用」中的部署步驟，再將 Worker 網址貼到設定欄位。');
+  if (!API_BASE) throw new Error('遊戲伺服器尚未設定。');
   const res = await fetch(`${API_BASE}/api${path}`, { ...options, headers:{'Content-Type':'application/json',...(options.headers||{})} });
   const data = await res.json().catch(()=>({error:'伺服器回傳格式錯誤'}));
   if(!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
   return data;
 }
+function setConnectionStatus(state, message) {
+  const box = $('connectionStatus');
+  const text = $('connectionStatusText');
+  if (!box || !text) return;
+  box.className = `connection-status ${state}`;
+  text.textContent = message;
+}
+async function checkBackend() {
+  backendReady = false;
+  $('startBtn').disabled = true;
+  $('startBtn').textContent = '檢查後端連線中…';
+  setConnectionStatus('checking', '正在連接遊戲伺服器…');
+  try {
+    const health = await api('/health');
+    if (!health.ok) throw new Error('伺服器健康檢查未通過');
+    if (Number(health.privateRoleCount) !== 7) {
+      throw new Error(`角色資料尚未完整匯入（目前 ${Number(health.privateRoleCount) || 0}/7 位）`);
+    }
+    backendReady = true;
+    setConnectionStatus('ready', '遊戲伺服器已連線，7 位角色資料已就緒');
+    $('startBtn').textContent = '選擇角色後進入陳宅　▶';
+    $('startBtn').disabled = !document.querySelector('input[name="playerRole"]:checked');
+  } catch (error) {
+    setConnectionStatus('error', `無法連接遊戲伺服器：${error.message}`);
+    $('startBtn').textContent = '遊戲伺服器尚未就緒';
+    $('startBtn').disabled = true;
+  }
+}
 function avatarStyle(id){const idx=characters.findIndex(c=>c.id===id);return `background-position:${idx<0?0:(idx/(characters.length-1))*100}% center`;}
 function renderCharacters(){
   $('characterGrid').innerHTML=characters.map(c=>`<label class="character-card"><input type="radio" name="playerRole" value="${esc(c.id)}"><span class="card-avatar" style="${avatarStyle(c.id)}"></span><span class="character-name">${esc(c.name)}</span><span class="character-age">${esc(c.age)}</span><span class="character-brief">${esc(c.brief)}</span><span class="select-mark">選擇角色</span></label>`).join('');
-  document.querySelectorAll('input[name="playerRole"]').forEach(i=>i.addEventListener('change',()=>{$('startBtn').disabled=false;}));
+  document.querySelectorAll('input[name="playerRole"]').forEach(i=>i.addEventListener('change',()=>{$('startBtn').disabled=!backendReady;}));
 }
 async function init(){
-  $('apiBase').value=API_BASE; $('apiBaseSettings').value=API_BASE;
-  try{const r=await fetch('characters.json');if(!r.ok)throw new Error(`HTTP ${r.status}`);characters=await r.json();renderCharacters();}
-  catch(e){$('characterGrid').innerHTML=`<div class="error-box">無法載入公開角色資料：${esc(e.message)}<br>請確認 characters.json 與 index.html 位於同一個前端資料夾。</div>`;}
-  const saved=localStorage.getItem('paperwife_session');
-  if(saved && API_BASE){try{const d=await api(`/session/${saved}`);session=d.session;player=d.player;showGame(d);if(session.stage==='act1_complete')showComplete();else openScript();}catch{localStorage.removeItem('paperwife_session');}}
+  try {
+    const r = await fetch('characters.json', { cache: 'no-store' });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    characters = await r.json();
+    renderCharacters();
+  } catch (e) {
+    $('characterGrid').innerHTML = `<div class="error-box">無法載入公開角色資料：${esc(e.message)}<br>請確認 characters.json 與 index.html 位於同一個前端資料夾。</div>`;
+  }
+  await checkBackend();
+  const saved = localStorage.getItem('paperwife_session');
+  if (saved && backendReady) {
+    try {
+      const d = await api(`/session/${saved}`);
+      session = d.session;
+      player = d.player;
+      showGame(d);
+      if (session.stage === 'act1_complete') showComplete();
+      else openScript();
+    } catch {
+      localStorage.removeItem('paperwife_session');
+    }
+  }
 }
 $('startBtn').addEventListener('click',async()=>{
   const selected=document.querySelector('input[name="playerRole"]:checked');if(!selected)return;
-  API_BASE=$('apiBase').value.trim().replace(/\/$/,'');
-  if(!API_BASE){alert('目前已開啟遊戲前端，但後端尚未部署。請先完成「02-後台部署專用」的 Cloudflare 設定，再貼上 Worker 網址。');return;}
-  localStorage.setItem('paperwife_api_base',API_BASE);
+  if(!backendReady){alert('遊戲伺服器尚未就緒，請稍後重新整理頁面。');return;}
   $('startBtn').disabled=true;$('startBtn').textContent='正在進入陳宅…';
   try{const d=await api('/session/start',{method:'POST',body:JSON.stringify({playerRole:selected.value})});session=d.session;player=d.player;localStorage.setItem('paperwife_session',session.id);showGame(d);openScript();}
   catch(e){alert(`開始遊戲失敗：${e.message}`);}
@@ -134,6 +178,4 @@ $('endActBtn').addEventListener('click',async()=>{
 function showComplete(){ $('discussionPanel').classList.add('hidden');$('actComplete').classList.remove('hidden');$('stageTitle').textContent='第一幕問答已完成';$('sideStage').textContent='第一幕完成';$('dialogueName').textContent='系統';$('dialogueText').textContent='第一幕問答已完成。下一階段將於後續版本加入。';}
 $('backSetupBtn').addEventListener('click',()=>{localStorage.removeItem('paperwife_session');session=null;player=null;$('gameView').classList.add('hidden');$('setupView').classList.remove('hidden');});
 $('toggleLogBtn').addEventListener('click',()=>{$('publicLog').classList.toggle('collapsed');$('toggleLogBtn').textContent=$('publicLog').classList.contains('collapsed')?'展開':'收合';});
-$('settingsBtn').addEventListener('click',()=>$('settingsDialog').showModal());$('closeSettings').addEventListener('click',()=>$('settingsDialog').close());
-$('saveSettings').addEventListener('click',()=>{API_BASE=$('apiBaseSettings').value.trim().replace(/\/$/,'');if(API_BASE)localStorage.setItem('paperwife_api_base',API_BASE);else localStorage.removeItem('paperwife_api_base');$('apiBase').value=API_BASE;$('settingsDialog').close();alert(API_BASE?'已儲存 Worker API 網址。':'已清除 Worker API 網址。');});
 init();
