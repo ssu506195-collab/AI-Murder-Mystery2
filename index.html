@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#111a2c">
+  <title>《紙妻》AI 劇本殺｜無 Token 版</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">紙</span><div><strong>AI 劇本殺</strong><small>《紙妻》・無 Token 版本</small></div></div>
+      <div class="chapter-track"><span class="active">第一幕 <small>角色與怪事</small></span><i></i><span>第二幕 <small>後續更新</small></span><i></i><span>第三幕 <small>後續更新</small></span></div>
+      <button class="ghost-btn" id="settingsBtn" type="button">設定</button>
+    </header>
+
+    <main>
+      <section id="setupView" class="setup-view">
+        <div class="intro-panel">
+          <div class="eyebrow">MURDER MYSTERY · ACT 01</div>
+          <h1>霧鎖陳宅</h1>
+          <p>民國初年，清河縣陳宅被濃霧籠罩。婚禮前夕，宅中怪事頻傳，七位各懷心事的人聚集在這場詭異的儀式裡。</p>
+          <div class="intro-pills"><span>7 位可選角色</span><span>1 位玩家・6 位固定 AI</span><span>免 Token 問答</span></div>
+        </div>
+        <section class="selection-panel">
+          <div class="section-heading"><div><span class="eyebrow">CHOOSE YOUR ROLE</span><h2>選擇你要扮演的角色</h2></div><span class="muted">每局選擇 1 位，其餘由電腦扮演</span></div>
+          <div id="characterGrid" class="character-grid"><div class="loading">正在載入角色…</div></div>
+          <div class="setup-footer">
+            <label class="api-label" for="apiBase">Worker API 網址 <small>完成 Cloudflare 後端部署後，請貼上 Worker 網址；尚未部署時可先瀏覽角色畫面</small></label>
+            <input id="apiBase" type="url" placeholder="https://你的-worker-名稱.你的帳號.workers.dev">
+            <button id="startBtn" class="gold-btn" disabled>進入陳宅　▶</button>
+          </div>
+          <p class="micro-note">前端畫面可先直接瀏覽；開始遊戲前，必須先完成 Cloudflare Worker 與 D1 後端部署，並填入 Worker 網址。本版本只開放第一幕劇本閱讀與三層固定問答。第二幕、搜證、線索卡與最終投票會在後續版本逐步加入。</p>
+        </section>
+      </section>
+
+      <section id="gameView" class="game-view hidden">
+        <div class="game-toolbar">
+          <div><span class="eyebrow">ACT 01 · THE CHEN MANOR</span><h2 id="stageTitle">第一幕｜角色劇本閱讀與問答</h2></div>
+          <div class="toolbar-actions"><span class="player-chip" id="playerChip"></span><button class="outline-btn" id="scriptBtn">查看我的劇本</button><button class="outline-btn" id="endActBtn">結束第一幕</button></div>
+        </div>
+
+        <div class="game-layout">
+          <section class="visual-stage" aria-label="遊戲場景">
+            <div class="scene-caption"><span>清河縣・陳宅</span><span>十一月初七　薄霧</span></div>
+            <div class="stage-cast" id="stageCast">
+              <div class="speaker-portrait" id="speakerPortrait"></div>
+              <div class="speaker-placeholder"><span id="speakerRole">系統</span><small id="speakerMood">第一幕開場</small></div>
+            </div>
+            <div class="dialogue-panel">
+              <div class="nameplate" id="dialogueName">系統</div>
+              <div class="dialogue-text" id="dialogueText">霧氣籠罩著陳宅，婚禮前夕，所有人都感到不安。</div>
+              <div class="dialogue-footer"><span>LOG ▴</span><span id="dialogueStep">第一幕・開場</span></div>
+            </div>
+          </section>
+
+          <aside class="side-panel">
+            <div class="side-card"><div class="side-title">本局資訊</div><div class="side-row"><span>你的角色</span><strong id="sideRole">—</strong></div><div class="side-row"><span>電腦角色</span><strong>6 位</strong></div><div class="side-row"><span>遊戲階段</span><strong id="sideStage">劇本閱讀</strong></div></div>
+            <div class="side-card"><div class="side-title">你的第一幕任務</div><ul id="taskList" class="task-list"></ul></div>
+            <div class="side-card conversation-card"><div class="side-title">公開對話紀錄 <button id="toggleLogBtn" class="text-btn">收合</button></div><div id="publicLog" class="public-log"></div></div>
+          </aside>
+        </div>
+
+        <section id="discussionPanel" class="discussion-panel hidden">
+          <div class="section-heading"><div><span class="eyebrow">FIXED BRANCHING Q&A</span><h3>第一幕・自由問答</h3><p class="muted">每段對話最多三層：起始問題、第一次追問、第二次追問。</p></div><div class="mode-switch"><button class="mode-btn active" data-mode="player_to_ai">我詢問 AI</button><button class="mode-btn" data-mode="ai_to_player">AI 詢問我</button></div></div>
+          <div class="question-controls">
+            <label>對話角色<select id="targetRole"></select></label>
+            <button id="beginQuestionBtn" class="outline-btn">載入問題方向</button>
+            <button id="askRandomBtn" class="outline-btn hidden">讓角色向我提問</button>
+          </div>
+          <div id="questionArea" class="question-area"><div class="empty-state">選擇對話方向與角色，即可開始第一幕問答。</div></div>
+        </section>
+
+        <section id="actComplete" class="complete-panel hidden">
+          <div class="complete-icon">✓</div><span class="eyebrow">ACT 01 COMPLETE</span><h2>第一幕問答已完成</h2><p>你已完成第一幕劇本閱讀與角色問答。下一階段涉及案發夜、搜證與新線索，將在下一個版本加入。</p><button id="backSetupBtn" class="outline-btn">返回角色選擇</button>
+        </section>
+      </section>
+    </main>
+    <footer class="footer"><span>《紙妻》AI 劇本殺 · Tokenless v0.1.1</span><span>角色私有資料由 Worker + D1 管理</span></footer>
+  </div>
+
+  <dialog id="scriptDialog" class="modal">
+    <div class="modal-head"><div><span class="eyebrow">PRIVATE CHARACTER SCRIPT</span><h2 id="scriptTitle">我的第一幕劇本</h2></div><button class="close-btn" id="closeScript">✕</button></div>
+    <div id="scriptContent" class="script-content"></div>
+    <div class="modal-actions"><button class="gold-btn" id="scriptDone">我已閱讀，開始討論</button></div>
+  </dialog>
+
+  <dialog id="settingsDialog" class="modal settings-modal">
+    <div class="modal-head"><div><span class="eyebrow">CONNECTION</span><h2>連線設定</h2></div><button class="close-btn" id="closeSettings">✕</button></div>
+    <label class="api-label" for="apiBaseSettings">Worker API 網址</label><input id="apiBaseSettings" type="url" placeholder="https://你的-worker-名稱.你的帳號.workers.dev">
+    <p class="micro-note">正式部署後，請填入 Cloudflare Worker 網址。API 網址只保存在目前瀏覽器，不會寫進 GitHub。</p>
+    <div class="modal-actions"><button class="gold-btn" id="saveSettings">儲存設定</button></div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
